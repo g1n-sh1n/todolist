@@ -22,11 +22,11 @@ jobs:
       - name: Extract check-in date
         id: extract
         run: |
-          echo "::set-output name=date::$(echo '${{ github.event.issue.title }}' | sed 's/check-in //')"
+          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_ENV
 
       - name: Update data.json
         run: |
-          DATE=${{ steps.extract.outputs.date }}
+          DATE=$(echo "$ISSUE_TITLE" | sed 's/check-in //')
           FILE=data.json
           if [ ! -f "$FILE" ]; then echo '{"dates":[]}' > "$FILE"; fi
           node -e '
@@ -36,10 +36,13 @@ jobs:
             const data = JSON.parse(fs.readFileSync(file));
             if (!data.dates.includes(date)) {
               data.dates.push(date);
-              data.dates.sort();
+              data.dates = data.dates.filter(Boolean).sort();
               fs.writeFileSync(file, JSON.stringify(data, null, 2));
             }
           '
+        env:
+          DATE: ${{ env.ISSUE_TITLE }}
+
 
       - name: Commit and push changes
         run: |
