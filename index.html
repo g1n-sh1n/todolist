@@ -123,30 +123,30 @@
     }
 
     async function loadStatus() {
-        const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/data.json`);
-        const content = await res.json();
+  const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/data.json`);
+  const content = await res.json();
 
-        const validDates = content.dates.filter(Boolean);
-        const total = validDates.length;
+  const validDates = content.dates.filter(Boolean);
+  const total = validDates.length;
 
-        const sorted = validDates.slice().sort((a, b) => new Date(a) - new Date(b));
-        const last = sorted[sorted.length - 1];
+  const sorted = validDates.slice().sort((a, b) => new Date(a) - new Date(b));
+  const last = sorted[sorted.length - 1];
 
-        const today = new Date().toISOString().split("T")[0];
-        const btn = document.getElementById("checkin-button");
+  const today = new Date().toISOString().split("T")[0];
+  const btn = document.getElementById("checkin-button");
 
-        document.getElementById("status").innerHTML = `Total check-ins: ${total}<br/>Last check-in: ${last}`;
+  document.getElementById("status").innerHTML = `Total check-ins: ${total}<br/>Last check-in: ${last}`;
 
-        if (validDates.includes(today)) {
-          btn.innerText = "Already checked in today";
-          btn.disabled = true;
-          btn.style.backgroundColor = "#ccc";
-          btn.style.cursor = "default";
-        } else {
-          btn.innerText = "Check in for today";
-          btn.disabled = false;
-        }
-      }
+  if (validDates.includes(today)) {
+    btn.innerText = "Already checked in today";
+    btn.disabled = true;
+    btn.style.backgroundColor = "#ccc";
+    btn.style.cursor = "default";
+  } else {
+    btn.innerText = "Check in for today";
+    btn.disabled = false;
+  }
+}
 
 
     loadStatus();
