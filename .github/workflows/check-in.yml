@@ -14,17 +14,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Extract check-in date
-        id: extract
+      - name: Extract check-in title to env
         run: |
           echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_ENV
 
-      - name: Update data.json
+      - name: Parse date from issue title and update data.json
         run: |
           DATE=$(echo "$ISSUE_TITLE" | sed 's/check-in //')
           FILE=data.json
@@ -43,11 +37,10 @@ jobs:
         env:
           DATE: ${{ env.ISSUE_TITLE }}
 
-
       - name: Commit and push changes
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add data.json
-          git commit -m "✅ Add check-in for ${{ steps.extract.outputs.date }}" || echo "No changes to commit"
+          git commit -m "Add check-in for $DATE" || echo "No changes to commit"
           git push
