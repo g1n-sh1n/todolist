@@ -123,26 +123,31 @@
     }
 
     async function loadStatus() {
-      const filePath = "data.json";
-      const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/${filePath}`);
-      const content = await res.json();
-      const total = content.dates.length;
-      const last = content.dates[content.dates.length - 1];
-      const today = new Date().toISOString().split("T")[0];
+        const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/data.json`);
+        const content = await res.json();
 
-      document.getElementById("status").innerHTML = `Total check-ins: ${total}<br/>Last check-in: ${last}`;
+        const validDates = content.dates.filter(Boolean);
+        const total = validDates.length;
 
-      const btn = document.getElementById("checkin-button");
-      if (content.dates.includes(today)) {
-        btn.innerText = "Already checked in today";
-        btn.disabled = true;
-        btn.style.backgroundColor = "#ccc";
-        btn.style.cursor = "default";
-      } else {
-        btn.innerText = "Check in for today";
-        btn.disabled = false;
+        const sorted = validDates.slice().sort((a, b) => new Date(a) - new Date(b));
+        const last = sorted[sorted.length - 1];
+
+        const today = new Date().toISOString().split("T")[0];
+        const btn = document.getElementById("checkin-button");
+
+        document.getElementById("status").innerHTML = `Total check-ins: ${total}<br/>Last check-in: ${last}`;
+
+        if (validDates.includes(today)) {
+          btn.innerText = "Already checked in today";
+          btn.disabled = true;
+          btn.style.backgroundColor = "#ccc";
+          btn.style.cursor = "default";
+        } else {
+          btn.innerText = "Check in for today";
+          btn.disabled = false;
+        }
       }
-    }
+
 
     loadStatus();
   </script>
