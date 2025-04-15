@@ -1,0 +1,50 @@
+name: Check-in Tracker
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  update-checkin:
+    if: startsWith(github.event.issue.title, 'check-in')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Extract check-in date
+        id: extract
+        run: |
+          echo "::set-output name=date::$(echo '${{ github.event.issue.title }}' | sed 's/check-in //')"
+
+      - name: Update data.json
+        run: |
+          DATE=${{ steps.extract.outputs.date }}
+          FILE=data.json
+          if [ ! -f "$FILE" ]; then echo '{"dates":[]}' > "$FILE"; fi
+          node -e '
+            const fs = require("fs");
+            const file = "data.json";
+            const date = process.env.DATE;
+            const data = JSON.parse(fs.readFileSync(file));
+            if (!data.dates.includes(date)) {
+              data.dates.push(date);
+              data.dates.sort();
+              fs.writeFileSync(file, JSON.stringify(data, null, 2));
+            }
+          '
+
+      - name: Commit and push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add data.json
+          git commit -m "✅ Add check-in for ${{ steps.extract.outputs.date }}" || echo "No changes to commit"
+          git push

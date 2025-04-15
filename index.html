@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todolist Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #444;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      background: #d0e6f7;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #a7cdee;
+    }
+    .status {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .plan {
+      flex: 1;
+      min-width: 300px;
+      max-width: 500px;
+      background: #ffffff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .plan ul li {
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>TOEFL Daily Tracker</h1>
+  <button class="btn" id="checkin-button" onclick="markToday()">Loading...</button>
+
+  <div class="status" id="status"></div>
+
+  <div class="container">
+    <div class="plan">
+      <h2>TOEFL Mon–Sat</h2>
+      <h3>Monday</h3>
+      <ul>
+        <li>Learn 100 new words</li>
+        <li>Study 3 complex sentences</li>
+      </ul>
+      <h3>Tuesday</h3>
+      <ul>
+        <li>Learn 100 new words</li>
+        <li>Practice 1 listening passage</li>
+      </ul>
+      <h3>Wednesday</h3>
+      <ul>
+        <li>Learn 100 new words</li>
+        <li>Study 3 complex sentences</li>
+      </ul>
+      <h3>Thursday</h3>
+      <ul>
+        <li>Learn 100 new words</li>
+        <li>Practice 1 listening passage</li>
+      </ul>
+      <h3>Friday</h3>
+      <ul>
+        <li>Learn 100 new words</li>
+        <li>Study 3 complex sentences</li>
+      </ul>
+      <h3>Saturday</h3>
+      <ul>
+        <li>Learn 100 new words</li>
+        <li>Read 1 passage and answer questions</li>
+      </ul>
+    </div>
+
+    <div class="plan">
+      <h2>Physio Routine</h2>
+      <ul>
+        <li>Squats × 10</li>
+        <li>Reach outs – 5 each side</li>
+        <li>Strap stretch – 30 sec</li>
+        <li>Ball dig and bridge – 10 × 1 set</li>
+        <li>Ball single leg – 5 sec × 5 sets</li>
+        <li>Ankle weight</li>
+        <li>Single leg lunge × 10 each leg (10 lbs)</li>
+        <li>Sustain hamstring stretch with 2 × 2 lbs weight</li>
+        <li>Y balance</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const repo = "/g1n-sh1n/todolist";
+
+    async function createCheckInIssue() {
+      const today = new Date().toISOString().split("T")[0];
+      const issueUrl = `https://github.com/${repo}/issues/new?title=check-in+${today}`;
+      window.open(issueUrl, '_blank');
+    }
+
+    async function loadStatus() {
+      const filePath = "data.json";
+      const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/${filePath}`);
+      const content = await res.json();
+      const total = content.dates.length;
+      const last = content.dates[content.dates.length - 1];
+      const today = new Date().toISOString().split("T")[0];
+
+      document.getElementById("status").innerHTML = `Total check-ins: ${total}<br/>Last check-in: ${last}`;
+
+      const btn = document.getElementById("checkin-button");
+      if (content.dates.includes(today)) {
+        btn.innerText = "Already checked in today";
+        btn.disabled = true;
+        btn.style.backgroundColor = "#ccc";
+        btn.style.cursor = "default";
+      } else {
+        btn.innerText = "Check in for today";
+        btn.disabled = false;
+      }
+    }
+
+    loadStatus();
+  </script>
+</body>
+</html>
